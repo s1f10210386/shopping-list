@@ -12,17 +12,95 @@ import {
 const App = () => {
 	const [items, setItems] = useState([]);
 
+	const [inputValue,setInputValue] = useState('');
+
+	const handleAddButtonClick =() => {
+		const newItem ={
+			itemName: inputValue,
+			quantity: 1,
+			isSelected: false,
+		};
+        //スプレっト関数でitemsの要素とnewitemの要素を合体して新たな配列を生成？
+		const newItems =[...items,newItem];
+
+		setItems(newItems);
+
+		setInputValue("");
+
+		calculateTotal();
+	};
+
+	const toggleComplete = (index) => {
+		const newItems =[...items];
+		newItems[index].isSelected = !newItems[index].isSelected;
+		setItems(newItems);
+	};
+
+	const handleQuantityIncrease =(index)=>{
+		const newItems =[...items];
+		newItems[index].quantity++;
+		setItems(newItems);
+		calculateTotal();
+	};
+
+	const handleQuantityDecrease = (index)=>{
+		const newItems=[...items];
+		newItems[index].quantity--;
+		setItems(newItems);
+		calculateTotal();
+	};
+
+	const [totalItemCount,setTotalItemCount] =useState(0);
+
+	const calculateTotal =() => {
+		const totalItemCount =items.reduce((total,item) => {
+			return total + item.quantity;
+		}, 0);
+
+		setTotalItemCount(totalItemCount);
+	};
+
+
+
 	return (
 		<div className="app-background">
 			<div className="main-container">
 				<div className="add-item-box">
-					<input className="add-item-input" placeholder="Add an item..." />
-					<FontAwesomeIcon icon={faPlus} />
+					<input value={inputValue} onChange={(event) => setInputValue(event.target.value)}
+					className="add-item-input" placeholder="Add an item..." />
+					<FontAwesomeIcon icon={faPlus} onClick={() => handleAddButtonClick()}/>
 				</div>
 				<div className="item-list">
-					<div className="item-container"></div>
-				</div>
-				<div className="total">Total: </div>
+					{items.map((item,index)=>(
+						<div className='item-container'>
+							<div className='item-name' onClick={()=>toggleComplete(index)}>
+								{item.isSelected ? (
+									<>
+									    <FontAwesomeIcon icon={faCheckCircle} />
+										<span className='completed'>{item.itemName}</span>
+									</>
+								) : (
+									<>
+									    <FontAwesomeIcon icon={faCircle} />
+										<span>{item.itemName}</span>
+									</>
+								)}
+							</div>
+							<div className='quantity'>
+								<button>
+									<FontAwesomeIcon icon={faChevronLeft} onClick={()=>
+									handleQuantityIncrease(index)} />
+								</button>
+								<span>{item.quantity}</span>
+								<button>
+									<FontAwesomeIcon icon={faChevronRight} onClick={()=>
+									handleQuantityDecrease(index)}/>
+								</button>
+							</div>
+						</div>
+				    ))}
+		        </div>
+				<div className="total">Total: {totalItemCount} </div>
 			</div>
 		</div>
 	);
